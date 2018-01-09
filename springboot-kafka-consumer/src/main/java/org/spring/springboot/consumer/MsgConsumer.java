@@ -1,5 +1,7 @@
 package org.spring.springboot.consumer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
@@ -9,7 +11,10 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class MsgConsumer {
-    @KafkaListener(topics = {"my-replicated-topic", "my-replicated-topic2"})
+    //logger
+    private static final Logger logger = LoggerFactory.getLogger(MsgConsumer.class);
+
+    @KafkaListener(topics = {"nginx-access-log"})
     public void processMessage(String content) {
         System.out.println(content);
     }

@@ -43,4 +43,18 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <fork>true</fork>
+                    <!--迁移至jdk9所需要添加的参数-->
+                    <!--<jvmArguments>&#45;&#45;add-modules java.xml.bind</jvmArguments>-->
+                    <!--<mainClass>org.springframework.samples.petclinic.PetClinicApplication</mainClass>-->
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

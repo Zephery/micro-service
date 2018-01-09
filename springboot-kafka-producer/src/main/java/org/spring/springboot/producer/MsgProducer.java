@@ -1,48 +1,35 @@
 package org.spring.springboot.producer;
 
-import org.apache.kafka.clients.producer.RecordMetadata;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.ProducerListener;
-import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Zephery
  * @since 2018/1/5 10:36
  */
-@Component
+@RestController
 public class MsgProducer {
+    //logger
+    private static final Logger logger = LoggerFactory.getLogger(MsgProducer.class);
     @Resource
     private KafkaTemplate<String, String> kafkaTemplate;
 
-    public void send() {
-        kafkaTemplate.send("my-replicated-topic", "xiaojf");
-        kafkaTemplate.send("my-replicated-topic", "xiaojf");
+    @RequestMapping("/send")
+    public void send(HttpServletRequest request) {
+        String word = request.getParameter("word");
+        kafkaTemplate.send("nginx-access-log", word);
+    }
 
-        kafkaTemplate.metrics();
-
-        kafkaTemplate.execute(producer -> {
-            //这里可以编写kafka原生的api操作
-            return null;
-        });
-
-        //消息发送的监听器，用于回调返回信息
-        kafkaTemplate.setProducerListener(new ProducerListener<String, String>() {
-            @Override
-            public void onSuccess(String topic, Integer partition, String key, String value, RecordMetadata recordMetadata) {
-
-            }
-
-            @Override
-            public void onError(String topic, Integer partition, String key, String value, Exception exception) {
-
-            }
-
-            @Override
-            public boolean isInterestedInSuccess() {
-                return false;
-            }
-        });
+    @KafkaListener(topics = "myTopic")
+    public void listen(ConsumerRecord<?, ?> cr) throws Exception {
+        logger.info(cr.toString());
     }
 }
