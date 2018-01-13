@@ -1,4 +1,8 @@
 # Spring Boot与Kafka
+
+
+
+
 **开启外网访问**
 只需要在config/server.properties里加入：
 ```html
@@ -21,6 +25,10 @@ bin/kafka-topics.sh --list --zookeeper localhost:2181
 bin/kafka-console-producer.sh --broker-list localhost:9092 --topic test
 （5）消费者接收消息
 bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic test --from-beginning
+
+### 删除 
+删除kafka存储的日志，在kafka的config/server.properties的log.dirs=/tmp/kafka-logs查看
+
 
 # 多模块的Spring Boot与Kafka
 （1）在父pom.xml中添加：
@@ -138,6 +146,7 @@ http://localhost:8081/send.do?word=9y787y87y8gg
 
 
 # 错误记录
+(1)
 ```html
 Error starting ApplicationContext. To display the auto-configuration report re-run your application with 'debug' enabled.
 2018-01-05 11:10:47.947 ERROR 251848 --- [           main] o.s.boot.SpringApplication               : Application startup failed
@@ -153,7 +162,37 @@ org.springframework.context.ApplicationContextException: Unable to start embedde
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1107) [spring-boot-1.5.9.RELEASE.jar:1.5.9.RELEASE]
 ```
 
+(2)
 
+${message}
+<div align="center">
+
+![](http://image.wenzhihuai.com/images/20180110084946.png)
+
+</div>
+
+一定要在output的kafka中添加
+
+```html
+output {
+    stdout{
+        codec => rubydebug
+    }
+    kafka {
+        bootstrap_servers => "119.29.188.224:9092"    #生产者
+        topic_id => "nginx-access-log"    #设置写入kafka的topic
+        # compression_type => "snappy"    #消息压缩模式，默认是none，可选gzip、snappy。
+        codec => json
+    }
+```
+
+（3）
+
+<div align="center">
+
+![](http://image.wenzhihuai.com/images/20180111093255.png)
+
+</div>
 
 
 
