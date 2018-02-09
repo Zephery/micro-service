@@ -14,19 +14,21 @@ events {
 http {
     include       mime.types;
     default_type  application/octet-stream;
+    lua_package_path "/opt/openresty/lualib/?.lua;;";
+    lua_package_cpath "/opt/openresty/lualib/?.so;;";
     log_format main '{"@timestamp":"$time_iso8601",'
-      '"host": "$server_addr",'
-      '"clientip": "$remote_addr",'
-      '"size": $body_bytes_sent,'
-      '"responsetime": $request_time,'
-      '"upstreamtime": "$upstream_response_time",'
-      '"upstreamhost": "$upstream_addr",'
-      '"http_host": "$host",'
-      '"url": "$uri",'
-      '"xff": "$http_x_forwarded_for",'
-      '"referer": "$http_referer",'
-      '"agent": "$http_user_agent",'
-      '"status": "$status"}';
+    '"host": "$server_addr",'
+    '"clientip": "$remote_addr",'
+    '"size": $body_bytes_sent,'
+    '"responsetime": $request_time,'
+    '"upstreamtime": "$upstream_response_time",'
+    '"upstreamhost": "$upstream_addr",'
+    '"http_host": "$host",'
+    '"url": "$uri",'
+    '"xff": "$http_x_forwarded_for",'
+    '"referer": "$http_referer",'
+    '"agent": "$http_user_agent",'
+    '"status": "$status"}';
 
     access_log  logs/access.log  main;
     sendfile        on;
@@ -50,7 +52,7 @@ http {
         listen       80;
         # listen       443 ssl;   # ssl
         server_name  www.wenzhihuai.com;
-		# ssl on;     # 如果只允许https，注释去掉
+        # ssl on;     # 如果只允许https，注释去掉
         # ssl_certificate 1_www.wenzhihuai.com_bundle.crt;
         # ssl_certificate_key 2_www.wenzhihuai.com.key;
         # ssl_session_timeout 5m;
@@ -60,21 +62,31 @@ http {
         # charset koi8-r;
         # access_log  logs/host.access.log  main;
         location / {
+            default_type    text/html;
             root   html;
             index  index.html index.htm;
-            proxy_pass http://backend;
             proxy_set_header X-Real-IP $remote_addr;
             # needed for HTTPS
             # proxy_set_header X_FORWARDED_PROTO https;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header Host $host;
             proxy_set_header REMOTE-HOST $remote_addr;
+            # 关闭缓存lua脚本，调试的时候专用
+            lua_code_cache off;
+            content_by_lua_file /opt/lua/hello.lua;
+            proxy_pass http://backend;
         }
+        ##################缓存配置###############################3
+        location ~* /images/(gif|jpg|jpeg|png|bmp|ico)$ {
+            root    /images;
+            expires 1d;
 
+        }
         #error_page  404              /404.html;
 
         # redirect server error pages to the static page /50x.html
         #
+
         error_page   500 502 503 504  /50x.html;
         location = /50x.html {
             root   html;
@@ -146,4 +158,3 @@ http {
     #    }
     #}
 }
-
