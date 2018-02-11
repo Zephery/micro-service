@@ -22,3 +22,9 @@ if (request_uri == "/" or request_uri == "/index.html") then
     red:close()
     return
 end
+local pagenum = ngx.req.get_uri_args()["pagenum"]
+ngx.req.set_header("Accept", "text/html,application/xhtml+xml,application/xml;")
+ngx.req.set_header("Accept-Encoding", "")
+local respp = ngx.location.capture("/index.do", { method = ngx.HTTP_GET, args = { pagenum = pagenum } })
+ngx.print(respp.body)
+return
