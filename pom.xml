@@ -11,6 +11,8 @@
     <modules>
         <!--<module>newblogdubbo</module>-->
         <!--<module>bootdubbo</module>-->
+        <module>springboot-fastdfs</module>
+        <module>springboot-mongodb</module>
         <module>springboot-dubbo-server</module>
         <module>springboot-kafka-producer</module>
         <module>springboot-kafka-consumer</module>
