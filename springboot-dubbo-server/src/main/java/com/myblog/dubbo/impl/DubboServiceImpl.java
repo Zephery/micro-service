@@ -2,12 +2,15 @@ package com.myblog.dubbo.impl;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.myblog.dao.IBlogDao;
+import com.myblog.dao.IWeiboDao;
 import com.myblog.dubbo.DubboService;
 import com.myblog.model.Blog;
+import com.myblog.model.Weibo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * @author Zephery
@@ -20,6 +23,8 @@ public class DubboServiceImpl implements DubboService {
 
     @Resource
     private IBlogDao blogDao;
+    @Resource
+    private IWeiboDao weiboDao;
 
     @Override
     public String sayHello(String hello) {
@@ -29,5 +34,10 @@ public class DubboServiceImpl implements DubboService {
     @Override
     public Blog get(Integer blogid) {
         return blogDao.findOne(blogid);
+    }
+
+    @Override
+    public List<Weibo> getAllWeiboToday() {
+        return weiboDao.getWeibosToday();
     }
 }
