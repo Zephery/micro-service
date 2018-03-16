@@ -102,6 +102,106 @@ id
 PUBSUB
 commandExecutor
 
+
+以lock.lock()为例，调用lock之后，底层使用的是lockInterruptibly，之后调用lockInterruptibly(-1, null);
+<div align="center">
+
+![](https://upyuncdn.wenzhihuai.com/20180316081203383746214.png)
+
+</div>
+
+我们来看一下lockInterruptibly的源码
+```java
+public void lockInterruptibly(long leaseTime, TimeUnit unit) throws InterruptedException {
+    long threadId = Thread.currentThread().getId();//获取当前线程ID
+    Long ttl = tryAcquire(leaseTime, unit, threadId);//尝试加锁
+    // 如果为空，当前线程获取锁成功，否则已经被其他客户端加锁
+    if (ttl == null) {
+        return;
+    }
+    //等待释放，并订阅锁
+    RFuture<RedissonLockEntry> future = subscribe(threadId);
+    commandExecutor.syncSubscription(future);
+
+    try {
+        while (true) {
+            // 重新尝试获取锁
+            ttl = tryAcquire(leaseTime, unit, threadId);
+            // 成功获取锁
+            if (ttl == null) {
+                break;
+            }
+
+            // 等待锁释放
+            if (ttl >= 0) {
+                getEntry(threadId).getLatch().tryAcquire(ttl, TimeUnit.MILLISECONDS);
+            } else {
+                getEntry(threadId).getLatch().acquire();
+            }
+        }
+    } finally {
+        // 取消订阅
+        unsubscribe(future, threadId);
+    }
+}
+
+```
+
+
+下面是tryAcquire的实现，调用的是tryAcquireAsync
+```java
+    private Long tryAcquire(long leaseTime, TimeUnit unit, long threadId) {
+        return get(tryAcquireAsync(leaseTime, unit, threadId));
+    }
+```
+下面是tryAcquireAsync的实现，异步
+```java
+private <T> RFuture<Long> tryAcquireAsync(long leaseTime, TimeUnit unit, final long threadId) {
+    if (leaseTime != -1) {
+        return tryLockInnerAsync(leaseTime, unit, threadId, RedisCommands.EVAL_LONG);
+    }
+    RFuture<Long> ttlRemainingFuture = tryLockInnerAsync(commandExecutor.getConnectionManager().getCfg().getLockWatchdogTimeout(), TimeUnit.MILLISECONDS, threadId, RedisCommands.EVAL_LONG);
+    ttlRemainingFuture.addListener(new FutureListener<Long>() {
+        @Override
+        public void operationComplete(Future<Long> future) throws Exception {
+            if (!future.isSuccess()) {
+                return;
+            }
+
+            Long ttlRemaining = future.getNow();
+            // lock acquired
+            if (ttlRemaining == null) {
+                scheduleExpirationRenewal(threadId);
+            }
+        }
+    });
+    return ttlRemainingFuture;
+}
+```
+
+
+下面是tryLockInnerAsyncy异步加锁
+```java
+
+<T> RFuture<T> tryLockInnerAsync(long leaseTime, TimeUnit unit, long threadId, RedisStrictCommand<T> command) {
+    internalLockLeaseTime = unit.toMillis(leaseTime);
+
+    return commandExecutor.evalWriteAsync(getName(), LongCodec.INSTANCE, command,
+              "if (redis.call('exists', KEYS[1]) == 0) then " +
+                  "redis.call('hset', KEYS[1], ARGV[2], 1); " +
+                  "redis.call('pexpire', KEYS[1], ARGV[1]); " +
+                  "return nil; " +
+              "end; " +
+              "if (redis.call('hexists', KEYS[1], ARGV[2]) == 1) then " +
+                  "redis.call('hincrby', KEYS[1], ARGV[2], 1); " +
+                  "redis.call('pexpire', KEYS[1], ARGV[1]); " +
+                  "return nil; " +
+              "end; " +
+              "return redis.call('pttl', KEYS[1]);",
+                Collections.<Object>singletonList(getName()), internalLockLeaseTime, getLockName(threadId));
+}
+```
+
 参考：
 1.[Redis分布式锁的正确实现方式](https://www.cnblogs.com/linjiqin/p/8003838.html)
 2.[分布式锁的多种实现方式](https://www.cnblogs.com/yuyutianxia/p/7149363.html)

@@ -30,6 +30,7 @@ public class RedissonTest implements Runnable {
     public void run() {
         RLock lock = redisson.getLock("anyLock");
         lock.lock();
+        lock.tryLock();
         count--;
         System.out.println(count);
         lock.unlock();
