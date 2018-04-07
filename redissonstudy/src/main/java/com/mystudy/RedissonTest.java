@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
  * Description:
  */
 public class RedissonTest implements Runnable {
+    //logger
+    private static final Logger logger = LoggerFactory.getLogger(RedissonTest.class);
     private static RedissonClient redisson;
     private static int count = 10000;
 

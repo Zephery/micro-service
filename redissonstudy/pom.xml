@@ -11,5 +11,12 @@
 
     <artifactId>redissonstudy</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.alibaba.otter</groupId>
+            <artifactId>canal.client</artifactId>
+            <version>1.0.25</version>
+        </dependency>
+    </dependencies>
 
 </project>
