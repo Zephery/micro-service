@@ -64,11 +64,7 @@ public class Rest {
         String method = "PUT";
         String endpoint = "/test-index/test/2";
         HttpEntity entity = new NStringEntity(
-                "{\n" +
-                        "    \"user\" : \"kimchy\",\n" +
-                        "    \"post_date\" : \"2009-11-15T14:12:12\",\n" +
-                        "    \"message\" : \"trying out Elasticsearch\"\n" +
-                        "}", ContentType.APPLICATION_JSON);
+                "{\"area\":\"广州\",\"referer\":\"\",\"ip\":\"119.29.188.224\",\"response_time\":\"1\",\"id\":\"988012778\",\"ip_time\":\"2018-04-11 22:57:50\",\"uri\":\"/\",\"visit_num\":\"1\",\"sid\":\"6bd1596b-2d5e-4ab7-a3a3-f6515dc40838\"}", ContentType.APPLICATION_JSON);
 
         Response response = restClient.performRequest(method, endpoint, Collections.emptyMap(), entity);
         System.out.println(EntityUtils.toString(response.getEntity()));

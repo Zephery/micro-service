@@ -1,11 +1,19 @@
 package org.spring.springboot.consumer;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.nio.entity.NStringEntity;
+import org.elasticsearch.client.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
+import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -18,6 +26,8 @@ public class MsgConsumer {
     private static final Logger logger = LoggerFactory.getLogger(MsgConsumer.class);
     private static final JsonParser parser = new JsonParser();
     private static final ConcurrentHashMap<String, Integer> map = new ConcurrentHashMap<>();
+    RestClient restClient = RestClient.builder(
+            new HttpHost("119.29.188.224", 9200, "http")).build();
 
     //
 //    @KafkaListener(topics = {"nginx-access-log"})
@@ -30,8 +40,11 @@ public class MsgConsumer {
 //        }
 //    }
 //
-    @KafkaListener(topics = {"logs"})
-    public void logs(String content) {
+    @KafkaListener(topics = {"newbloglogs"})
+    public void logs(String content) throws IOException {
+        JsonElement element = parser.parse(content);
         logger.info(content);
+        HttpEntity entity = new NStringEntity(element.toString(), ContentType.APPLICATION_JSON);
+        restClient.performRequest("POST", "/newbloglogs/blog", Collections.emptyMap(), entity);
     }
 }

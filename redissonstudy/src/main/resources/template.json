@@ -1,0 +1,50 @@
+{
+    "index_patterns": "table*",
+    "settings": {
+        "number_of_shards": 1
+    },
+    "mappings": {
+        "type1": {
+            "_source": {
+                "enabled": false
+            },
+            "properties": {
+                "area": {
+                    "type": "keyword"
+                },
+                "referer": {
+                    "type": "text"
+                },
+                "ip": {
+                    "type": "text"
+                },
+                "response_time": {
+                    "type": "long"
+                },
+                "id": {
+                    "type": "long"
+                },
+                "ip_time": {
+                    "type": "text"
+                },
+                "uri": {
+                    "type": "text"
+                },
+                "visit_num": {
+                    "type": "long"
+                },
+                "sid": {
+                    "type": "text"
+                }
+            }
+        }
+    },
+    "aliases": {
+        "alias1": {
+            "read_table": {}
+        },
+        "alias2": {
+            "write_table": {}
+        }
+    }
+}
