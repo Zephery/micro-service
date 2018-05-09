@@ -44,13 +44,13 @@
     </properties>
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>org.springframework.data</groupId>
-                <artifactId>spring-data-releasetrain</artifactId>
-                <version>Fowler-SR2</version>
-                <scope>import</scope>
-                <type>pom</type>
-            </dependency>
+            <!--<dependency>-->
+                <!--<groupId>org.springframework.data</groupId>-->
+                <!--<artifactId>spring-data-releasetrain</artifactId>-->
+                <!--<version>Fowler-SR2</version>-->
+                <!--<scope>import</scope>-->
+                <!--<type>pom</type>-->
+            <!--</dependency>-->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
@@ -65,18 +65,18 @@
         <dependency>
             <groupId>org.elasticsearch.client</groupId>
             <artifactId>elasticsearch-rest-client</artifactId>
-            <version>6.2.4</version>
+            <version>6.1.1</version>
         </dependency>
 
         <dependency>
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch</artifactId>
-            <version>6.2.4</version>
+            <version>6.1.1</version>
         </dependency>
         <dependency>
             <groupId>org.elasticsearch.client</groupId>
             <artifactId>transport</artifactId>
-            <version>6.2.4</version>
+            <version>6.1.1</version>
         </dependency>
         <dependency>
             <groupId>org.redisson</groupId>
