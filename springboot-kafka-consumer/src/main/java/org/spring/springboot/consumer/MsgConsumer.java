@@ -2,11 +2,14 @@ package org.spring.springboot.consumer;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.nio.entity.NStringEntity;
 import org.elasticsearch.client.RestClient;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -45,6 +48,8 @@ public class MsgConsumer {
         JsonElement element = parser.parse(content);
         logger.info(content);
         HttpEntity entity = new NStringEntity(element.toString(), ContentType.APPLICATION_JSON);
-        restClient.performRequest("POST", "/newbloglogs/blog", Collections.emptyMap(), entity);
+        String id = DateTime.now().toString("yyyyMMddHHmmss") + RandomStringUtils.randomAlphanumeric(10);
+        restClient.performRequest("PUT", "/newbloglogs_write/blog/" + id, Collections.emptyMap(), entity);
     }
+
 }
