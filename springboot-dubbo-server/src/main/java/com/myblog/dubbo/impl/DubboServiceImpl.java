@@ -16,7 +16,12 @@ import java.util.List;
  * @author Zephery
  * @since 2018/1/13 15:58
  */
-@Service
+@Service(
+        version = "1.0.0",
+        application = "${dubbo.application.id}",
+        protocol = "${dubbo.protocol.id}",
+        registry = "${dubbo.registry.id}"
+)
 public class DubboServiceImpl implements DubboService {
     //logger
     private static final Logger logger = LoggerFactory.getLogger(DubboServiceImpl.class);

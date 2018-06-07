@@ -14,8 +14,8 @@ events {
 http {
     include       mime.types;
     default_type  application/octet-stream;
-    lua_package_path "/opt/openresty/lualib/?.lua;;";
-    lua_package_cpath "/opt/openresty/lualib/?.so;;";
+    lua_package_path "/usr/local/openresty/lualib/?.lua;;";
+    lua_package_cpath "/usr/local/openresty/lualib/?.so;;";
     log_format main '{"@timestamp":"$time_iso8601",'
     '"host": "$server_addr",'
     '"clientip": "$remote_addr",'
@@ -39,13 +39,14 @@ http {
 
     upstream backend {
         #consistent_hash was not configured
-        hash $uri;
-        server 47.95.10.139:8080;
         server 119.23.46.71:8080;
         server 119.29.188.224:8080;
     }
     upstream admin{
         server 119.23.46.71:8081;
+    }
+    upstream zkui{
+        server 119.29.188.224:9099;
     }
 
     server {
@@ -61,7 +62,7 @@ http {
         # ssl_prefer_server_ciphers on;
         # charset koi8-r;
         # access_log  logs/host.access.log  main;
-        location  = / {
+        location  ~ .*\.(html)$ {
             default_type    text/html;
             root   html;
             index  index.html index.htm;
@@ -71,21 +72,7 @@ http {
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header Host $host;
             proxy_set_header REMOTE-HOST $remote_addr;
-            # 关闭缓存lua脚本，调试的时候专用
-            lua_code_cache off;
-            content_by_lua_file /opt/lua/hello.lua;
-        }
-        location  = /index.html {
-            default_type    text/html;
-            root   html;
-            index  index.html index.htm;
-            proxy_set_header X-Real-IP $remote_addr;
-            # needed for HTTPS
-            # proxy_set_header X_FORWARDED_PROTO https;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header Host $host;
-            proxy_set_header REMOTE-HOST $remote_addr;
-            charset utf-8;
+            charset utf8;
             proxy_pass_request_headers off ;
             # 关闭缓存lua脚本，调试的时候专用
             lua_code_cache off;
@@ -184,4 +171,17 @@ http {
     #        index  index.html index.htm;
     #    }
     #}
+    server {
+        listen       80;
+        server_name  zkui.wenzhihuai.com;
+        location / {
+            proxy_pass http://zkui;
+            proxy_set_header X-Real-IP $remote_addr;
+            # needed for HTTPS
+            # proxy_set_header X_FORWARDED_PROTO https;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header Host $host;
+            proxy_set_header REMOTE-HOST $remote_addr;
+        }
+    }
 }

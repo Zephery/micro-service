@@ -7,6 +7,8 @@ import org.redisson.config.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Created with IntelliJ IDEA.
  * User: Zephery
@@ -38,10 +40,11 @@ public class RedissonTest implements Runnable {
         lock.unlock();
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         init();
         for (int i = 0; i < 100; i++) {
             new Thread(new RedissonTest()).start();
+            TimeUnit.SECONDS.sleep(2);
         }
     }
 }
