@@ -38,7 +38,8 @@ if resp == ngx.null then
     red:set("targetURL", targetURL)
     local respp = ngx.location.capture(targetURL, { method = ngx.HTTP_GET, args = uri_args })
     red:set(key, respp.body)
-    red:expire(key,3600)
+    ngx.print(respp.body)
+    red:expire(key, 3600)
     return
 end
 ngx.print(resp)
